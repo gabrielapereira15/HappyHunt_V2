@@ -14,10 +14,16 @@ To get started with the Happy Hunt app, follow these steps:
 
 ## **Screenshots**
 
-![Screenshot1](app\src\main\res\drawable\assets\1.png)
-![Screenshot2](app\src\main\res\drawable\assets\2.png)
-![Screenshot3](app\src\main\res\drawable\assets\3.png)
-![Screenshot4](app\src\main\res\drawable\assets\4.png)
-![Screenshot5](app\src\main\res\drawable\assets\5.png)
-![Screenshot6](app\src\main\res\drawable\assets\6.png)
-![Screenshot7](app\src\main\res\drawable\assets\7.png)
+![Screenshot1](app/src/main/res/drawable/assets/1.png)
+
+![Screenshot2](app/src/main/res/drawable/assets/2.png)
+
+![Screenshot3](app/src/main/res/drawable/assets/3.png)
+
+![Screenshot4](app/src/main/res/drawable/assets/4.png)
+
+![Screenshot5](app/src/main/res/drawable/assets/5.png)
+
+![Screenshot6](app/src/main/res/drawable/assets/6.png)
+
+![Screenshot7](app/src/main/res/drawable/assets/7.png)
