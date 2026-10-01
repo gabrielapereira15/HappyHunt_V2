@@ -293,3 +293,9 @@ Solutions postgraduate program, then rebuilt as a portfolio piece.
 - The photo of the Royal Ontario Museum in the screenshots is
   [*Royal Ontario Museum-Michael Lee-Chin Crystal*](https://commons.wikimedia.org/wiki/File:Royal_Ontario_Museum-Michael_Lee-Chin_Crystal.jpg)
   by Staka, under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0)
+
+## Licence
+
+The code is [MIT](LICENSE) © Gabriela Nascimento Oliveira Pereira. Map data,
+photos, the typeface and the icons keep their own licences, listed under
+[Credits](#credits).
