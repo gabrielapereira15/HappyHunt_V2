@@ -1,34 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Happy Hunt</string>
 
-    <string name="about_menu">About</string>
-    <string name="account_menu">Account</string>
-    <string name="favorite_menu">Favorites</string>
-    <string name="history_menu">History</string>
+    <!-- Navigation -->
+    <string name="tab_explore">Explore</string>
+    <string name="tab_saved">Saved</string>
+    <string name="tab_settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="try_again">Try again</string>
+    <string name="undo">Undo</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_app">No app on this phone can open that.</string>
 
-    <string name="map_menu">Map</string>
-    <string name="list_menu">List</string>
-    <string name="filter_menu">Filters</string>
+    <!-- Welcome -->
+    <string name="welcome_title">Find something fun nearby</string>
+    <string name="welcome_body">Parks, playgrounds, treats and things to see, all around you. No account, no sign-up: just start exploring.</string>
+    <string name="welcome_use_location">Use my location</string>
+    <string name="welcome_choose_area">Choose an area</string>
+    <string name="welcome_locating">Finding you…</string>
+    <string name="welcome_privacy">Your location is only used as the centre of the search. No account, nothing that identifies you.</string>
+    <string name="location_denied">No problem. Pick an area to explore instead.</string>
+    <string name="location_off">Location is turned off on this phone. Turn it on, or pick an area.</string>
+    <string name="location_not_found">Couldn\'t find where you are. Try again, or pick an area.</string>
 
-    <string name="nav_open">Open</string>
-    <string name="nav_close">Close</string>
+    <!-- Area search -->
+    <string name="search_hint">Neighbourhood, city or address</string>
+    <string name="search_title">Where to?</string>
+    <string name="search_use_location">Use my current location</string>
+    <string name="search_use_location_hint">Find places around you</string>
+    <string name="search_recent">Recent</string>
+    <string name="search_clear_recent">Clear</string>
+    <string name="search_no_results">Nothing found for “%1$s”. Try a city or a neighbourhood.</string>
+    <string name="search_failed">Search needs a connection. Check yours and try again.</string>
+    <string name="search_clear">Clear search</string>
 
-    <string name="login_menu">Login</string>
-    <string name="sign_up">Sign Up</string>
-    <string name="deleteAccount">Delete Account</string>
-    <string name="username">Username</string>
-    <string name="login_string">Do you have an account? Login</string>
+    <!-- Explore -->
+    <string name="explore_near_you">Near you</string>
+    <string name="explore_this_area">This area</string>
+    <string name="explore_change_area">Change area</string>
+    <string name="explore_within">Within %1$s</string>
+    <string name="explore_open_now">Open now</string>
+    <string name="explore_search_here">Search this area</string>
+    <string name="explore_looking">Looking for fun nearby…</string>
+    <string name="explore_stale">Showing an earlier search. Couldn\'t refresh just now.</string>
+    <string name="explore_offline_title">You\'re offline</string>
+    <string name="explore_offline_body">Connect to the internet to explore this area. Your saved places still work offline.</string>
+    <string name="explore_busy_title">The map is busy right now</string>
+    <string name="explore_busy_body">Place search runs on volunteer servers that get crowded at times. Give it a moment and try again.</string>
+    <string name="explore_empty_title">Nothing here yet</string>
+    <string name="explore_empty_body">No places found within %1$s.</string>
+    <string name="explore_empty_category">No %1$s within %2$s.</string>
+    <string name="explore_empty_open">Nothing that matches is open right now.</string>
+    <string name="explore_show_all">Show everything</string>
+    <string name="explore_show_closed">Show closed places too</string>
+    <string name="explore_look_further">Look within %1$s</string>
+    <string name="explore_locate">Go to my location</string>
+    <string name="explore_details">See details</string>
+    <plurals name="explore_count">
+        <item quantity="one">%d place</item>
+        <item quantity="other">%d places</item>
+    </plurals>
 
-    <string name="search_location_hint">Search location</string>
-    <string name="ok_button">OK</string>
+    <!-- Categories -->
+    <string name="category_all">All</string>
+    <string name="category_eat">Eat</string>
+    <string name="category_treats">Coffee &amp; treats</string>
+    <string name="category_parks">Parks</string>
+    <string name="category_playgrounds">Playgrounds</string>
+    <string name="category_attractions">Things to do</string>
+    <string name="category_culture">Museums &amp; culture</string>
+    <!-- Used in sentences: "No playgrounds within 1 km." -->
+    <string name="category_eat_lower">places to eat</string>
+    <string name="category_treats_lower">cafés or treats</string>
+    <string name="category_parks_lower">parks</string>
+    <string name="category_playgrounds_lower">playgrounds</string>
+    <string name="category_attractions_lower">things to do</string>
+    <string name="category_culture_lower">museums or culture</string>
 
-    <string name="email_hint">Email</string>
-    <string name="password_hint">Password</string>
+    <!-- Kinds of place -->
+    <string name="kind_museum">Museum</string>
+    <string name="kind_gallery">Gallery</string>
+    <string name="kind_zoo">Zoo</string>
+    <string name="kind_aquarium">Aquarium</string>
+    <string name="kind_theme_park">Theme park</string>
+    <string name="kind_water_park">Water park</string>
+    <string name="kind_playground">Playground</string>
+    <string name="kind_park">Park</string>
+    <string name="kind_garden">Garden</string>
+    <string name="kind_nature_reserve">Nature reserve</string>
+    <string name="kind_restaurant">Restaurant</string>
+    <string name="kind_fast_food">Fast food</string>
+    <string name="kind_food_court">Food court</string>
+    <string name="kind_cafe">Café</string>
+    <string name="kind_ice_cream">Ice cream</string>
+    <string name="kind_bakery">Bakery</string>
+    <string name="kind_pastry">Pastry shop</string>
+    <string name="kind_sweets">Sweet shop</string>
+    <string name="kind_arts_centre">Arts centre</string>
+    <string name="kind_theatre">Theatre</string>
+    <string name="kind_cinema">Cinema</string>
+    <string name="kind_mini_golf">Mini golf</string>
+    <string name="kind_bowling">Bowling</string>
+    <string name="kind_arcade">Arcade</string>
+    <string name="kind_viewpoint">Viewpoint</string>
+    <string name="kind_attraction">Attraction</string>
 
-    <string name="rating_text_default">No rating</string>
-    <string name="rating_value_default">0.0</string>
-    <string name="place_name_default">Place name not provided</string>
-    <string name="place_address_default">Place address not provided</string>
-    <string name="place_description_default">Place description not provided</string>
-    <string name="about_me">My name is Gabriela, I am Brazilian and a mother of two wonderful children. In July 2023, I made the exciting decision to move to Canada in search of new opportunities and experiences. I have been a developer for four years and discovered my passion for this profession along the way. I am excited to continue growing and learning on this exciting journey as a developer</string>
+    <!-- Highlights -->
+    <string name="highlight_wheelchair">Wheelchair accessible</string>
+    <string name="highlight_partly_wheelchair">Partly accessible</string>
+    <string name="highlight_free">Free entry</string>
+    <string name="highlight_outdoor_seating">Outdoor seating</string>
+    <string name="highlight_vegan">Vegan options</string>
+    <string name="highlight_vegetarian">Vegetarian options</string>
+    <string name="highlight_takeaway">Takeaway</string>
+    <string name="highlight_dogs">Dogs welcome</string>
+    <string name="highlight_changing_table">Baby changing</string>
+    <string name="highlight_toilets">Toilets</string>
+    <string name="highlight_wifi">Wi-Fi</string>
+
+    <!-- Open or closed -->
+    <string name="status_open_24">Open 24 hours</string>
+    <string name="status_open_until">Open · until %1$s</string>
+    <string name="status_open">Open now</string>
+    <string name="status_closes_soon">Closes soon · %1$s</string>
+    <string name="status_closed">Closed</string>
+    <string name="status_opens_today">Closed · opens %1$s</string>
+    <string name="status_opens_on">Closed · opens %1$s %2$s</string>
+    <string name="walk_minutes">%1$d min walk</string>
+
+    <!-- Place -->
+    <string name="place_save">Save</string>
+    <string name="place_unsave">Remove from saved</string>
+    <string name="place_directions">Directions</string>
+    <string name="place_call">Call</string>
+    <string name="place_website">Website</string>
+    <string name="place_share">Share</string>
+    <string name="place_away">%1$s away</string>
+    <string name="place_hours">Opening hours</string>
+    <string name="place_hours_unknown">Opening hours aren\'t listed for this place.</string>
+    <string name="place_hours_as_written">Listed as: %1$s</string>
+    <string name="place_hours_note">Hours can differ on public holidays.</string>
+    <string name="place_hours_elsewhere">Times are local to the place.</string>
+    <string name="place_day_closed">Closed</string>
+    <string name="place_open_end">from %1$s</string>
+    <string name="place_good_to_know">Good to know</string>
+    <string name="place_info">Info</string>
+    <string name="place_address">Address</string>
+    <string name="place_phone">Phone</string>
+    <string name="place_ages">Ages %1$d to %2$d</string>
+    <plurals name="place_ages_from">
+        <item quantity="one">Ages %1$d and up</item>
+        <item quantity="other">Ages %1$d and up</item>
+    </plurals>
+    <string name="place_on_the_map">On the map</string>
+    <string name="place_photo_credit">Photo · Wikimedia Commons</string>
+    <string name="place_osm_title">Something missing or wrong?</string>
+    <string name="place_osm_body">These details come from OpenStreetMap, the map anyone can improve.</string>
+    <string name="place_osm_link">Edit on OpenStreetMap</string>
+    <string name="place_not_found">This place couldn\'t be loaded. Check your connection and try again.</string>
+
+    <!-- Saved -->
+    <string name="saved_title">Saved</string>
+    <string name="saved_empty_title">No saved places yet</string>
+    <string name="saved_empty_body">Tap the heart on any place to keep it here for your next outing. Saved places work offline too.</string>
+    <string name="saved_empty_action">Start exploring</string>
+    <string name="saved_removed">Removed %1$s</string>
+    <plurals name="saved_count">
+        <item quantity="one">%d place for later</item>
+        <item quantity="other">%d places for later</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_radius">How far to look</string>
+    <string name="settings_radius_hint">A bigger area finds more places, but takes longer to load.</string>
+    <string name="settings_units">Distances</string>
+    <string name="units_auto">Automatic</string>
+    <string name="units_metric">Kilometres</string>
+    <string name="units_imperial">Miles</string>
+    <string name="settings_theme">Appearance</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_data">Your data</string>
+    <string name="settings_clear_saved">Clear saved places</string>
+    <string name="settings_clear_saved_hint">Removes every place you\'ve saved from this phone.</string>
+    <string name="settings_clear_saved_confirm_title">Clear all saved places?</string>
+    <string name="settings_clear_saved_confirm_body">This can\'t be undone.</string>
+    <string name="settings_clear_saved_confirm">Clear</string>
+    <string name="settings_cleared_saved">Saved places cleared</string>
+    <string name="settings_clear_recent">Clear recent searches</string>
+    <string name="settings_cleared_recent">Recent searches cleared</string>
+    <string name="settings_privacy_body">Happy Hunt has no accounts, no ads and no tracking. To find places, only the centre of your search is sent to the open map services below, with nothing that identifies you. Saved places, settings and your last search area stay on this phone; the search area is left out of backups.</string>
+    <string name="settings_credits">Made with open data</string>
+    <string name="credit_osm">OpenStreetMap contributors</string>
+    <string name="credit_osm_what">Every place, park and street (ODbL)</string>
+    <string name="credit_tiles">OpenFreeMap · OpenMapTiles</string>
+    <string name="credit_tiles_what">The map you see</string>
+    <string name="credit_overpass">Overpass API</string>
+    <string name="credit_overpass_what">Finding places around you</string>
+    <string name="credit_photon">Photon by komoot</string>
+    <string name="credit_photon_what">Searching for an area</string>
+    <string name="credit_wikimedia">Wikidata · Wikimedia Commons</string>
+    <string name="credit_wikimedia_what">Place photos, credited on each place</string>
+    <string name="credit_maplibre">MapLibre</string>
+    <string name="credit_maplibre_what">The map engine</string>
+    <string name="credit_design">Nunito · Lucide</string>
+    <string name="credit_design_what">Typeface and icons</string>
+    <string name="settings_version">Happy Hunt %1$s</string>
 </resources>

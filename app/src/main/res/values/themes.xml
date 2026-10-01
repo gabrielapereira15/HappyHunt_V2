@@ -1,13 +1,18 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.HappyHunt" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HappyHunt" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/cream</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Happy Hunt draws its own light and dark themes; phones that darken apps themselves (MIUI) must leave it be. -->
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 
-    <style name="Theme.HappyHunt" parent="Base.Theme.HappyHunt" />
-    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/white</item>
+    <style name="Theme.HappyHunt.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/lagoon</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.HappyHunt</item>
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 </resources>

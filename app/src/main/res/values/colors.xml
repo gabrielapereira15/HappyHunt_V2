@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="blue">#300000FF</color>
-    <color name="gray">#30000000</color>
-
-    <color name="yellow">#FFFFFF00</color>
-    <color name="light_yellow">#FFFFFF99</color>
-    <color name="dark_yellow">#FFFFCC00</color>
-
-    <color name="light_blue">#FFBFEFFF</color>
-    <color name="light_green">#9abb80</color>
-    <color name="light_purple">#FFE3D7FF</color>
-    <color name="light_gray">#FFECECEC</color>
-    <color name="transparentColor" >#00FFFFFF</color>
+    <!-- For the window and splash screen; the app's own palette is in ui/theme/Color.kt. -->
+    <color name="lagoon">#0E7A6E</color>
+    <color name="cream">#FBF7F2</color>
+    <color name="night">#101615</color>
 </resources>

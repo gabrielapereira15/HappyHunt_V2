@@ -1,0 +1,134 @@
+{
+ "version": 0.6,
+ "generator": "Overpass API 0.7.62.11 87bfad18",
+ "elements": [
+  {
+   "type": "node",
+   "id": 54965507,
+   "lat": 43.6523976,
+   "lon": -79.4062653,
+   "tags": {
+    "air_conditioning": "yes",
+    "amenity": "cafe",
+    "brand": "Tim Hortons",
+    "brand:wikidata": "Q175106",
+    "brand:wikipedia": "en:Tim Hortons",
+    "check_date": "2026-06-27",
+    "cuisine": "coffee_shop",
+    "diet:vegan": "no",
+    "diet:vegetarian": "yes",
+    "drive_through": "no",
+    "indoor_seating": "yes",
+    "internet_access": "wlan",
+    "name": "Tim Hortons",
+    "opening_hours": "24/7",
+    "outdoor_seating": "no",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "recycling:coffee_cups": "no",
+    "smoking": "no",
+    "takeaway": "yes",
+    "wheelchair": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 244884014,
+   "lat": 43.6556742,
+   "lon": -79.4098907,
+   "tags": {
+    "addr:city": "Toronto",
+    "addr:housenumber": "293",
+    "addr:postcode": "M6J 2J3",
+    "addr:province": "Ontario",
+    "addr:street": "Palmerston Avenue",
+    "amenity": "restaurant",
+    "cuisine": "burger",
+    "delivery": "yes",
+    "name": "Harry's Charbroiled",
+    "opening_hours": "Mo-Su 12:00-21:00",
+    "phone": "+1-647-342-6307",
+    "takeaway": "yes",
+    "website": "https://harryscharbroiled.com"
+   }
+  },
+  {
+   "type": "way",
+   "id": 5941460,
+   "center": {
+    "lat": 43.6528623,
+    "lon": -79.4202801
+   },
+   "tags": {
+    "addr:city": "Toronto",
+    "addr:housenumber": "155",
+    "addr:province": "Ontario",
+    "addr:street": "Roxton Road",
+    "leisure": "park",
+    "name": "Fred Hamilton Playground",
+    "name:source": "City of Toronto website",
+    "operator": "City of Toronto",
+    "operator:type": "government",
+    "operator:wikidata": "Q172",
+    "website": "https://www.toronto.ca/data/parks/prd/facilities/complex/72/index.html"
+   }
+  },
+  {
+   "type": "node",
+   "id": 4011951632,
+   "lat": 43.6461129,
+   "lon": -79.4211669,
+   "tags": {
+    "leisure": "playground"
+   }
+  },
+  {
+   "type": "node",
+   "id": 4922343583,
+   "lat": 43.6517141,
+   "lon": -79.4094854,
+   "tags": {
+    "addr:city": "Toronto",
+    "addr:housenumber": "830",
+    "addr:street": "Dundas Street West",
+    "check_date": "2026-06-27",
+    "name": "Worth Gallery",
+    "tourism": "gallery",
+    "wheelchair": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1,
+   "center": {
+    "lat": 43.646,
+    "lon": -79.42
+   },
+   "tags": {
+    "leisure": "garden",
+    "name": "Private garden",
+    "access": "private"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2,
+   "lat": 43.646,
+   "lon": -79.42,
+   "tags": {
+    "amenity": "restaurant"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3,
+   "lat": 43.646,
+   "lon": -79.42,
+   "tags": {
+    "amenity": "bank",
+    "name": "A bank"
+   }
+  }
+ ]
+}
