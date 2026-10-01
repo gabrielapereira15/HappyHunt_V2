@@ -80,8 +80,8 @@ first. The places now come from OpenStreetMap, so it runs without any key.
   to match
 - Friendly states for every case: searching, nothing found (with a nudge to
   look further), nothing open, offline, or busy map servers
-- Searches are kept for a day, so going back to an area is instant and still
-  works without a connection
+- A search is reused for a day and kept for up to 30 days, so going back to
+  an area is instant and still works without a connection
 
 ## Screenshots
 
@@ -139,9 +139,13 @@ first. The places now come from OpenStreetMap, so it runs without any key.
 There are no accounts, no ads and no analytics. To find places, the app sends
 the centre of the search (the phone's position, or the area picked) to the
 open services listed under [Credits](#credits), with a User-Agent that names
-the app and nothing that identifies the person. Saved places, settings and the
-last search area stay on the phone. The search area is left out of Android
-backups. Location permission is asked for only when you ask to use your
+the app and nothing that identifies the person. Saved places, settings, the
+area being searched now, recent search areas and the places found around them
+stay on the phone. Saved places and settings go into the phone's Android
+backup, so they come along to a new phone; the search areas and results never
+do. **Clear recent searches** deletes the recent areas, the earlier results and
+the photos of places found; the current area stays, so the app opens where it
+was left. Location permission is asked for only when you ask to use your
 location, and approximate location is enough.
 
 ## Tech stack
@@ -166,7 +170,9 @@ location, and approximate location is enough.
 
 You need an Android Studio recent enough for the Android Gradle Plugin 9.4,
 or JDK 17 or newer with the Android SDK 37. The app runs on Android 10 (API 29)
-and up, and targets Android 17 (API 37). There is nothing to configure: no API
+and up, and targets Android 17 (API 37). The map uses MapLibre's OpenGL ES
+build (OpenGL ES 3.0, which almost every Android 10 phone has), so it does not
+need Vulkan. There is nothing to configure: no API
 key, no account, no server.
 
 ```bash
@@ -217,8 +223,9 @@ app/src/main/java/com/example/happyhunt/
   phone, so switching chips is instant and costs the volunteer servers nothing.
 - **Busy servers are expected.** Overpass is run by volunteers on several
   servers. When one answers with an error page, a timeout or a 504, the next
-  one is tried. Answers are kept for a day, in memory and on disk, and an older
-  answer is shown, marked as such, when none of the servers can be reached.
+  one is tried. An answer is reused for a day and kept on disk for up to 30
+  days, and an older answer is shown, marked as such, when none of the servers
+  can be reached.
 - **Opening hours are parsed, not guessed.** `OpeningHours` reads the
   OpenStreetMap format into a weekly timetable: day ranges that wrap around the
   week, several time ranges, times past midnight, "24/7", "off" and open ends.
@@ -243,11 +250,13 @@ app/src/main/java/com/example/happyhunt/
 ./gradlew testDebugUnitTest
 ```
 
-52 unit tests cover:
+62 unit tests cover:
 
 - opening hours: open, closing soon, closed and when it opens next; hours past
-  midnight, wrapping day ranges, days off and later rules, holiday rules, and
-  every opening time from a real Toronto search
+  midnight, open ends (evening ones last into the small hours), round-the-clock
+  and back-to-back ranges, wrapping day
+  ranges, days off and later rules, holiday rules, and every opening time from
+  a real Toronto search, checked at every half hour of the week
 - what counts as a place, its kind and category, cuisines, contact details,
   highlights and ages, from OpenStreetMap tags
 - distances, walking times and units, including a decimal comma in German,
@@ -256,7 +265,9 @@ app/src/main/java/com/example/happyhunt/
   the parser, against a real answer, including error pages that come back as
   200
 - server fallback, caching across restarts, older answers when the servers are
-  down, and telling "offline" from "busy", against a local test server
+  down, telling "offline" from "busy", clearing old searches without waiting
+  for a search in progress, deleting answers past 30 days, and cancelling a
+  search halfway through a download, against a local test server
 - the Photon area search and reverse lookup, and finding a place's photo with
   its author and licence
 - settings, and that the search area is kept apart from what is backed up
@@ -283,7 +294,8 @@ Solutions postgraduate program, then rebuilt as a portfolio piece.
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright)
   contributors, under the ODbL
 - Map tiles by [OpenFreeMap](https://openfreemap.org), © [OpenMapTiles](https://www.openmaptiles.org)
-- Places through the [Overpass API](https://overpass-api.de), area search by
+- Places through the [Overpass API](https://overpass-api.de) at overpass-api.de,
+  or [overpass.private.coffee](https://overpass.private.coffee) when it is busy; area search by
   [Photon](https://photon.komoot.io) from komoot, photos from
   [Wikidata](https://www.wikidata.org) and
   [Wikimedia Commons](https://commons.wikimedia.org), each credited to its

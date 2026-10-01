@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -140,7 +141,13 @@ fun ExploreScreen(
         }
     }
     // A new search starts the list from the top.
-    LaunchedEffect(state.load, state.category, state.openNow) { if (state.places.isNotEmpty()) listState.scrollToItem(0) }
+    // A new search or filter starts the list from the top; coming back to the screen keeps the place.
+    val listKey = "${state.load}|${state.category}|${state.openNow}|${state.origin?.point}|${state.radiusMeters}"
+    var handledListKey by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(listKey) {
+        if (handledListKey != null && handledListKey != listKey && state.places.isNotEmpty()) listState.scrollToItem(0)
+        handledListKey = listKey
+    }
 
     BackHandler(enabled = state.selected != null) { viewModel.select(null) }
     BackHandler(enabled = state.selected == null && sheetState.currentValue == SheetValue.Expanded) {
@@ -533,10 +540,14 @@ private fun ExploreSheet(
                         body = stringResource(R.string.explore_empty_open),
                         primary = stringResource(R.string.explore_show_closed) to { onOpenNow(false) },
                     )
-                    else -> InlineMessage(
-                        body = stringResource(R.string.explore_empty_category, stringResource(state.category!!.inSentence()), radius),
+                    state.category != null -> InlineMessage(
+                        body = stringResource(R.string.explore_empty_category, stringResource(state.category.inSentence()), radius),
                         primary = stringResource(R.string.explore_show_all) to onShowAll,
                         secondary = furtherAction,
+                    )
+                    else -> InlineMessage(
+                        body = stringResource(R.string.explore_empty_body, radius),
+                        primary = furtherAction,
                     )
                 }
             } else {

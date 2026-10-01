@@ -28,21 +28,43 @@ class OpeningHours private constructor(
 
     /** The day's ranges as clock times, for the weekly table. Empty means closed that day. */
     fun rangesOn(day: DayOfWeek): List<Pair<LocalTime, LocalTime?>> =
-        week[day].orEmpty().map { range -> minute(range.first) to if (range.last >= OPEN_END) null else minute(range.last) }
+        week[day].orEmpty().map { range ->
+            when {
+                range.last >= OPEN_END -> minute(range.first) to null
+                // A whole day or more ("00:00-24:00, 22:00-02:00") reads as midnight to midnight.
+                range.last - range.first >= DAY -> minute(range.first) to minute(range.first)
+                else -> minute(range.first) to minute(range.last)
+            }
+        }
 
     fun statusAt(now: LocalDateTime): Status {
         if (alwaysOpen) return Status.AlwaysOpen
         val today = now.dayOfWeek
         val minuteOfDay = now.hour * 60 + now.minute
-        // Open now: one of today's ranges, or one of yesterday's that runs past midnight.
-        val current = week[today].orEmpty().firstOrNull { minuteOfDay in it.first until it.last }
-            ?: week[today.minus(1)].orEmpty()
-                .firstOrNull { it.last > DAY && minuteOfDay + DAY in it.first until it.last }
-                ?.let { (it.first - DAY)..(it.last - DAY) }
-        if (current != null) {
-            if (current.last >= OPEN_END) return Status.Open(null, closesSoon = false)
-            val left = current.last - minuteOfDay
-            return Status.Open(minute(current.last), closesSoon = left <= 60)
+        // Open now: whichever open range lasts longest, today's own or one of yesterday's that runs
+        // past midnight (a Saturday that goes on to 03:00 outlasts a Sunday 00:00-01:00).
+        val yesterday = week[today.minus(1)].orEmpty()
+        val todays = week[today].orEmpty().filter { minuteOfDay in it.first until it.last }.map { it.last }
+        val yesterdays = yesterday
+            .filter { it.last in (DAY + 1) until OPEN_END && minuteOfDay + DAY in it.first until it.last }
+            .map { it.last - DAY }
+        // An evening open end ("22:00+") is taken to last into the small hours, up to 03:00, without
+        // a closing time; one that starts earlier in the day ("11:00+") is not stretched past midnight.
+        val lateOpenEnd = minuteOfDay < LATE_NIGHT_END && yesterday.any { it.last >= OPEN_END && it.first >= EVENING }
+        val open = (todays + yesterdays + if (lateOpenEnd) listOf(OPEN_END) else emptyList()).maxOrNull()
+        if (open != null) {
+            // Follow on into a range that carries on from where this one ends ("11:00-14:00,14:00-22:00",
+            // or a night that runs into a day open from 00:00), so it does not "close" when it does not.
+            var end: Int = open
+            var hops = 0
+            while (end < OPEN_END && hops++ < 7) {
+                val next = carriesOn(today, end) ?: break
+                if (next <= end) break
+                end = next
+            }
+            // A close a day or more away has no clock time worth showing ("until 00:00" would read as tonight).
+            if (end >= OPEN_END || end - minuteOfDay >= DAY) return Status.Open(null, closesSoon = false)
+            return Status.Open(minute(end), closesSoon = end - minuteOfDay <= 60)
         }
         // Closed: find the next opening, today or in the coming week.
         for (offset in 0..7) {
@@ -55,9 +77,28 @@ class OpeningHours private constructor(
         return Status.Closed(null, null, opensToday = false)
     }
 
+    /**
+     * Where opening carries on to from [end] (minutes after today's midnight): the latest end of a
+     * range open at that moment, that day's own or the day before's past midnight. Null when it closes.
+     */
+    private fun carriesOn(today: DayOfWeek, end: Int): Int? {
+        val offset = end / DAY
+        val local = end - offset * DAY
+        val day = today.plus(offset.toLong())
+        val sameDay = week[day].orEmpty()
+            .filter { it.first <= local && it.last > local }
+            .map { if (it.last >= OPEN_END) OPEN_END else it.last + offset * DAY }
+        val dayBefore = week[day.minus(1)].orEmpty()
+            .filter { it.last in (DAY + 1) until OPEN_END && it.first <= local + DAY && it.last > local + DAY }
+            .map { it.last - DAY + offset * DAY }
+        return (sameDay + dayBefore).maxOrNull()
+    }
+
     companion object {
         private const val DAY = 24 * 60
         private const val OPEN_END = 1_000_000
+        private const val EVENING = 17 * 60
+        private const val LATE_NIGHT_END = 3 * 60
 
         private val days = mapOf(
             "mo" to DayOfWeek.MONDAY, "tu" to DayOfWeek.TUESDAY, "we" to DayOfWeek.WEDNESDAY,
@@ -82,7 +123,25 @@ class OpeningHours private constructor(
                 if (!applyRule(rule, week)) return null
             }
             if (week.values.all { it.isEmpty() }) return null
-            return OpeningHours(week, alwaysOpen = false)
+            // Ranges that touch or overlap are one ("00:00-12:00,12:00-24:00" is all day).
+            for ((day, ranges) in week) week[day] = merged(ranges)
+            // However it is written ("Mo-Su,PH 00:00-24:00", "0:00-24:00"), all day every day is round the clock.
+            val allDay = DayOfWeek.entries.all { day -> week[day].orEmpty().any { it.first <= 0 && it.last in DAY until OPEN_END } }
+            return OpeningHours(if (allDay) emptyMap() else week, alwaysOpen = allDay)
+        }
+
+        /** Joins times that touch or overlap; an open end stays apart, since when it starts matters. */
+        private fun merged(ranges: List<IntRange>): List<IntRange> {
+            val out = mutableListOf<IntRange>()
+            for (range in ranges.sortedBy { it.first }) {
+                val last = out.lastOrNull()
+                if (last != null && last.last < OPEN_END && range.last < OPEN_END && range.first <= last.last) {
+                    out[out.lastIndex] = last.first..maxOf(last.last, range.last)
+                } else {
+                    out += range
+                }
+            }
+            return out
         }
 
         /**

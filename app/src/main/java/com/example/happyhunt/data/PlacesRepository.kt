@@ -29,8 +29,9 @@ class PlacesUnavailable(val offline: Boolean) : Exception(if (offline) "No conne
 /**
  * Finds places with the Overpass API, the free read-only door into
  * OpenStreetMap. Several volunteer servers answer the same queries; when one
- * is busy the next is tried. Each search is kept for a day, on disk too, so
- * going back to an area is instant and still works without a connection.
+ * is busy the next is tried. A search is reused for a day, and kept on disk
+ * for up to 30 days as a fallback, so going back to an area is instant and
+ * still works without a connection. Clearing recent searches deletes them.
  */
 class PlacesRepository(
     client: OkHttpClient,
@@ -41,7 +42,13 @@ class PlacesRepository(
 ) {
     private val client = client.newBuilder().callTimeout(35, TimeUnit.SECONDS).build()
     private val json = Json { ignoreUnknownKeys = true }
-    private val mutex = Mutex()
+    /** One search at a time against the servers. */
+    private val searching = Mutex()
+
+    /** Guards the memory and the files, briefly; clearing takes only this, never waiting for a search. */
+    private val cacheLock = Any()
+    private var generation = 0
+    private var pruned = false
     private val memory = object : LinkedHashMap<String, Cached>(8, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Cached>) = size > 6
     }
@@ -54,17 +61,29 @@ class PlacesRepository(
 
     fun known(id: String): Place? = known[id]
 
-    suspend fun around(center: GeoPoint, radiusMeters: Int, refresh: Boolean = false): Nearby = mutex.withLock {
+    suspend fun around(center: GeoPoint, radiusMeters: Int, refresh: Boolean = false): Nearby = searching.withLock {
         val key = String.format(Locale.ROOT, "%.4f_%.4f_%d", center.lat, center.lon, radiusMeters)
-        val cached = memory[key] ?: readDisk(key)?.also { memory[key] = it }
+        val (cached, startedIn) = withContext(io) {
+            synchronized(cacheLock) {
+                if (!pruned) prune().also { pruned = true }
+                (memory[key] ?: readDisk(key)?.also { memory[key] = it }) to generation
+            }
+        }
         if (cached != null && !refresh && now() - cached.fetchedAt < FRESH_FOR_MS) {
             return cached.toNearby(stale = false)
         }
         try {
             val places = fetch(OverpassQuery.around(center, radiusMeters))
             val fresh = Cached(now(), places)
-            memory[key] = fresh
-            writeDisk(key, fresh)
+            withContext(io) {
+                synchronized(cacheLock) {
+                    // A search that began before "clear recent searches" is not written back.
+                    if (generation == startedIn) {
+                        memory[key] = fresh
+                        writeDisk(key, fresh)
+                    }
+                }
+            }
             fresh.toNearby(stale = false)
         } catch (e: PlacesUnavailable) {
             // An older answer beats no answer: places rarely move.
@@ -87,10 +106,9 @@ class PlacesRepository(
             for (server in servers) {
                 try {
                     val request = Request.Builder().url(server).post(FormBody.Builder().add("data", query).build()).build()
-                    client.newCall(request).await().use { response ->
-                        offline = false
-                        if (response.isSuccessful) return@withTimeoutOrNull OverpassParser.parse(response.body.string())
-                    }
+                    val body = client.newCall(request).awaitBody()
+                    offline = false
+                    if (body != null) return@withTimeoutOrNull OverpassParser.parse(body)
                 } catch (e: IOException) {
                     if (!e.isOffline) offline = false
                 } catch (_: OverpassParser.NotAnAnswer) {
@@ -104,24 +122,45 @@ class PlacesRepository(
         places
     }
 
+    /** Forgets every earlier search, in memory and on disk: their file names say where they were. */
+    suspend fun clear() = withContext(io) {
+        synchronized(cacheLock) {
+            generation++
+            memory.clear()
+            directory().listFiles()?.forEach { it.delete() }
+        }
+    }
+
     private fun Cached.toNearby(stale: Boolean): Nearby {
         places.forEach { known[it.id] = it }
         return Nearby(places, fetchedAt, stale)
     }
 
-    private suspend fun readDisk(key: String): Cached? = withContext(io) {
+    // The three below run on the IO dispatcher, holding cacheLock.
+
+    private fun readDisk(key: String): Cached? {
         val file = File(directory(), "$key.json")
-        runCatching { json.decodeFromString<Cached>(file.readText()) }.getOrNull()
-            ?.takeIf { now() - it.fetchedAt < KEEP_FOR_MS }
+        if (!file.exists()) return null
+        val cached = runCatching { json.decodeFromString<Cached>(file.readText()) }.getOrNull()
+        if (cached == null || now() - cached.fetchedAt >= KEEP_FOR_MS) {
+            file.delete()
+            return null
+        }
+        return cached
     }
 
-    private suspend fun writeDisk(key: String, cached: Cached) = withContext(io) {
+    private fun writeDisk(key: String, cached: Cached) {
         runCatching {
-            val dir = directory()
-            File(dir, "$key.json").writeText(json.encodeToString(cached))
-            // Keep the folder small: only the most recent searches.
-            dir.listFiles()?.sortedByDescending { it.lastModified() }?.drop(MAX_FILES)?.forEach { it.delete() }
+            File(directory(), "$key.json").writeText(json.encodeToString(cached))
+            prune()
         }
+    }
+
+    /** Keeps the folder small: only the most recent searches, and none past their 30 days. */
+    private fun prune() {
+        directory().listFiles()?.sortedByDescending { it.lastModified() }
+            ?.filterIndexed { index, file -> index >= MAX_FILES || now() - file.lastModified() >= KEEP_FOR_MS }
+            ?.forEach { it.delete() }
     }
 
     private fun directory() = File(cacheDir, "places").apply { mkdirs() }

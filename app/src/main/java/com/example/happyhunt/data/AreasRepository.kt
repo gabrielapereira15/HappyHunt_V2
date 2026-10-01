@@ -52,10 +52,12 @@ class AreasRepository(
         PhotonParser.label(body).also { synchronized(labels) { labels[key] = it } }
     }
 
+    fun forget() {
+        synchronized(labels) { labels.clear() }
+    }
+
     private suspend fun get(url: String): String? = try {
-        client.newCall(Request.Builder().url(url).build()).await().use { response ->
-            if (response.isSuccessful) response.body.string() else null
-        }
+        client.newCall(Request.Builder().url(url).build()).awaitBody()
     } catch (_: IOException) {
         null
     }

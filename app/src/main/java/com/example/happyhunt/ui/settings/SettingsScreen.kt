@@ -81,7 +81,7 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun clearRecent(then: () -> Unit) = viewModelScope.launch {
-        container.settings.clearRecent()
+        container.forgetRecentSearches()
         then()
     }
 }
@@ -160,7 +160,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     confirmClear = true
                 }
                 HorizontalDivider(color = Hunt.colors.line)
-                ActionRow(HuntIcons.History, stringResource(R.string.settings_clear_recent), null) {
+                ActionRow(HuntIcons.History, stringResource(R.string.settings_clear_recent), stringResource(R.string.settings_clear_recent_hint)) {
                     viewModel.clearRecent { tell(R.string.settings_cleared_recent) }
                 }
             }

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -118,11 +119,11 @@ fun HappyHuntRoot(container: AppContainer, settings: Settings) {
             enterTransition = { fadeIn(tween(220)) },
             exitTransition = { fadeOut(tween(180)) },
         ) {
-            composable<WelcomeRoute> {
+            composable<WelcomeRoute> { entry ->
                 WelcomeScreen(
                     container = container,
-                    onReady = { nav.navigate(ExploreRoute) { popUpTo<WelcomeRoute> { inclusive = true } } },
-                    onChooseArea = { nav.navigate(AreaSearchRoute(fromWelcome = true)) },
+                    onReady = { nav.ifCurrent(entry) { nav.navigate(ExploreRoute) { popUpTo<WelcomeRoute> { inclusive = true } } } },
+                    onChooseArea = { nav.ifCurrent(entry) { nav.navigate(AreaSearchRoute(fromWelcome = true)) } },
                 )
             }
             composable<AreaSearchRoute>(
@@ -134,25 +135,27 @@ fun HappyHuntRoot(container: AppContainer, settings: Settings) {
                 AreaSearchScreen(
                     viewModel = viewModel { AreaSearchViewModel(container) },
                     container = container,
-                    onBack = { nav.popBackStack() },
+                    onBack = { nav.ifCurrent(backStackEntry) { nav.popBackStack() } },
                     onDone = {
-                        if (route.fromWelcome) nav.navigate(ExploreRoute) { popUpTo<WelcomeRoute> { inclusive = true } }
-                        else nav.popBackStack()
+                        nav.ifCurrent(backStackEntry) {
+                            if (route.fromWelcome) nav.navigate(ExploreRoute) { popUpTo<WelcomeRoute> { inclusive = true } }
+                            else nav.popBackStack()
+                        }
                     },
                 )
             }
-            composable<ExploreRoute> {
+            composable<ExploreRoute> { entry ->
                 ExploreScreen(
                     viewModel = viewModel { ExploreViewModel(container) },
-                    onOpenPlace = { nav.navigate(PlaceRoute(it)) },
-                    onChangeArea = { nav.navigate(AreaSearchRoute()) },
+                    onOpenPlace = { id -> nav.ifCurrent(entry) { nav.navigate(PlaceRoute(id)) } },
+                    onChangeArea = { nav.ifCurrent(entry) { nav.navigate(AreaSearchRoute()) } },
                 )
             }
-            composable<SavedRoute> {
+            composable<SavedRoute> { entry ->
                 SavedScreen(
                     viewModel = viewModel { SavedViewModel(container) },
-                    onOpenPlace = { nav.navigate(PlaceRoute(it)) },
-                    onExplore = { nav.openTab(ExploreRoute) },
+                    onOpenPlace = { id -> nav.ifCurrent(entry) { nav.navigate(PlaceRoute(id)) } },
+                    onExplore = { nav.ifCurrent(entry) { nav.openTab(ExploreRoute) } },
                 )
             }
             composable<SettingsRoute> {
@@ -167,11 +170,22 @@ fun HappyHuntRoot(container: AppContainer, settings: Settings) {
                 val route = backStackEntry.toRoute<PlaceRoute>()
                 PlaceScreen(
                     viewModel = viewModel(key = route.id) { PlaceViewModel(container, route.id) },
-                    onBack = { nav.popBackStack() },
+                    onBack = { nav.ifCurrent(backStackEntry) { nav.popBackStack() } },
                 )
             }
         }
     }
+}
+
+/**
+ * Runs a navigation action only while this screen is the current one. A second
+ * tap that lands while the screen is already leaving (a double tap on Back, say)
+ * would otherwise pop the screen underneath too, or open a place twice; and an
+ * action that finishes after some work (finding the phone's position) still goes
+ * ahead if the app was put in the background meanwhile.
+ */
+private inline fun NavHostController.ifCurrent(entry: NavBackStackEntry, action: () -> Unit) {
+    if (currentBackStackEntry?.id == entry.id) action()
 }
 
 private fun NavHostController.openTab(route: Any) {

@@ -117,15 +117,10 @@ class AreaSearchViewModel(private val container: AppContainer) : ViewModel() {
         query.value = text
     }
 
-    fun pick(area: Area, then: () -> Unit) {
-        viewModelScope.launch {
-            container.origins.useArea(area)
-            then()
-        }
-    }
+    suspend fun pick(area: Area) = container.origins.useArea(area)
 
     fun clearRecent() {
-        viewModelScope.launch { container.settings.clearRecent() }
+        viewModelScope.launch { container.forgetRecentSearches() }
     }
 }
 
@@ -237,7 +232,12 @@ fun AreaSearchScreen(
                         }
                     }
                     items(state.recent, key = { "recent-${it.name}-${it.detail}" }) { area ->
-                        AreaRow(HuntIcons.History, area.name, area.detail, onClick = { viewModel.pick(area, onDone) })
+                        AreaRow(HuntIcons.History, area.name, area.detail, onClick = {
+                            scope.launch {
+                                viewModel.pick(area)
+                                onDone()
+                            }
+                        })
                     }
                 }
                 results != null && results.isEmpty() -> item {
@@ -249,7 +249,10 @@ fun AreaSearchScreen(
                 results != null -> items(results, key = { "result-${it.name}-${it.detail}-${it.point}" }) { area ->
                     AreaRow(HuntIcons.Pin, area.name, area.detail, onClick = {
                         keyboard?.hide()
-                        viewModel.pick(area, onDone)
+                        scope.launch {
+                            viewModel.pick(area)
+                            onDone()
+                        }
                     })
                 }
             }

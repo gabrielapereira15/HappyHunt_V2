@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
@@ -86,8 +88,12 @@ import org.maplibre.geojson.Polygon
 import kotlin.math.cos
 import kotlin.math.sin
 
-/** Where the map looks. */
-data class CameraSpot(val center: GeoPoint, val zoom: Double)
+/**
+ * Where the map looks. [padding] (left, top, right, bottom, in pixels) is the
+ * area the centre was measured in, so the same spot lands on the same point of
+ * the screen when the map is made again, in a [window] of the same size.
+ */
+data class CameraSpot(val center: GeoPoint, val zoom: Double, val padding: DoubleArray? = null, val window: IntSize? = null)
 
 /** A request to move the camera. A new [key] is a new request, even to the same place. */
 data class CameraGoal(val key: Int, val center: GeoPoint, val radiusMeters: Int? = null, val zoom: Double? = null)
@@ -165,6 +171,8 @@ fun HuntMap(
     val layoutDirection = LocalLayoutDirection.current
     val colors = Hunt.colors
     val images = rememberMarkerImages()
+    val window = LocalWindowInfo.current.containerSize
+    val currentWindow by rememberUpdatedState(window)
 
     val mapView = remember {
         val options = MapLibreMapOptions.createFromAttributes(context)
@@ -174,7 +182,11 @@ fun HuntMap(
             .compassEnabled(false)
             .tiltGesturesEnabled(false)
             .foregroundLoadColor(MapStyle.loadingColor(dark))
-            .camera(CameraPosition.Builder().target(initialCamera.center.toLatLng()).zoom(initialCamera.zoom).build())
+            .camera(
+                CameraPosition.Builder().target(initialCamera.center.toLatLng()).zoom(initialCamera.zoom)
+                    .apply { initialCamera.padding?.takeIf { initialCamera.window == window }?.let { padding(it) } }
+                    .build(),
+            )
         MapView(context, options).apply { onCreate(null) }
     }
     ForwardLifecycle(mapView)
@@ -191,14 +203,15 @@ fun HuntMap(
     DisposableEffect(mapView) {
         mapView.getMapAsync { m ->
             m.uiSettings.apply {
+                setAllGesturesEnabled(interactive)
+                // After the line above, which would turn them back on: there is no compass to undo a turn.
                 isRotateGesturesEnabled = false
                 isTiltGesturesEnabled = false
-                setAllGesturesEnabled(interactive)
             }
             m.setMinZoomPreference(3.0)
             m.addOnCameraIdleListener {
                 val position = m.cameraPosition
-                position.target?.let { idle(CameraSpot(GeoPoint(it.latitude, it.longitude), position.zoom)) }
+                position.target?.let { idle(CameraSpot(GeoPoint(it.latitude, it.longitude), position.zoom, position.padding, currentWindow)) }
             }
             m.addOnCameraMoveStartedListener { reason ->
                 if (reason == MapLibreMap.OnCameraMoveStartedListener.REASON_API_GESTURE) moved()

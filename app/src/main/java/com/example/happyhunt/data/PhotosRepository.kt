@@ -63,7 +63,7 @@ class PhotosRepository(
     }
 
     private suspend fun get(url: HttpUrl): String? = try {
-        client.newCall(Request.Builder().url(url).build()).await().use { if (it.isSuccessful) it.body.string() else null }
+        client.newCall(Request.Builder().url(url).build()).awaitBody()
     } catch (_: IOException) {
         null
     }

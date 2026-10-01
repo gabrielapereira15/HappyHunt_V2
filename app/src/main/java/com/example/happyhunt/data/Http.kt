@@ -1,12 +1,10 @@
 package com.example.happyhunt.data
 
 import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Cache
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import java.io.File
 import java.io.IOException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -21,9 +19,12 @@ object Http {
      */
     const val USER_AGENT = "HappyHunt/2.0 (Android; +https://github.com/gabrielapereira15/HappyHunt_V2)"
 
-    /** One client for the whole app; its small disk cache holds the answers from Wikidata. */
-    fun client(cacheDir: File): OkHttpClient = OkHttpClient.Builder()
-        .cache(Cache(File(cacheDir, "http"), 16L * 1024 * 1024))
+    /**
+     * One client for the whole app. It has no disk cache on purpose: area
+     * lookups carry coordinates, and the answers worth keeping (searches,
+     * photos) are kept by the code that uses them.
+     */
+    fun client(): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(40, TimeUnit.SECONDS)
         .addInterceptor { chain ->
@@ -32,12 +33,25 @@ object Http {
         .build()
 }
 
-/** Runs the call without blocking a thread, and cancels it if the coroutine is cancelled. */
-suspend fun Call.await(): Response = suspendCancellableCoroutine { continuation ->
+/**
+ * Runs the call and reads the whole body, or null for an error status, without
+ * blocking the caller's thread. The body is read on OkHttp's thread before the
+ * coroutine resumes, so cancelling the coroutine cancels the call at any point,
+ * including halfway through a long download.
+ */
+suspend fun Call.awaitBody(): String? = suspendCancellableCoroutine { continuation ->
     continuation.invokeOnCancellation { cancel() }
     enqueue(object : Callback {
-        override fun onResponse(call: Call, response: Response) =
-            continuation.resume(response) { _, unused, _ -> unused.close() }
+        override fun onResponse(call: Call, response: Response) {
+            val body = try {
+                response.use { if (it.isSuccessful) it.body.string() else null }
+            } catch (e: IOException) {
+                continuation.resumeWithException(e)
+                return
+            }
+            continuation.resume(body)
+        }
+
         override fun onFailure(call: Call, e: IOException) = continuation.resumeWithException(e)
     })
 }

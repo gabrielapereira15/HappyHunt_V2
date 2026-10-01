@@ -118,6 +118,8 @@ class ExploreViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     private data class Filtered(
+        val category: Category?,
+        val openNow: Boolean,
         val total: Int,
         val places: List<NearbyPlace>,
         val pins: FeatureCollection,
@@ -134,6 +136,8 @@ class ExploreViewModel(private val container: AppContainer) : ViewModel() {
             (category == null || item.place.category == category) && (!openNow || !sameClock || item.isOpenAt(now))
         }
         Filtered(
+            category = category,
+            openNow = openNow,
             total = all.size,
             places = places,
             pins = MapStyle.pins(places.map { MapStyle.Pin(it.place.id, it.place.point, it.place.kind, it.place.name) }),
@@ -146,29 +150,26 @@ class ExploreViewModel(private val container: AppContainer) : ViewModel() {
 
     private val flags = combine(load, stale, searchHere, locating) { load, stale, here, locating -> Flags(load, stale, here, locating) }
 
-    private data class Choices(val category: Category?, val openNow: Boolean, val selectedId: String?)
-
-    private val choices = combine(category, openNow, selectedId) { category, openNow, selected -> Choices(category, openNow, selected) }
-
     val state: StateFlow<ExploreState> = combine(
         settings,
         filtered,
         flags,
-        choices,
+        selectedId,
         container.saved.ids,
-    ) { settings, filtered, flags, choices, saved ->
+    ) { settings, filtered, flags, selectedId, saved ->
         ExploreState(
             origin = settings?.origin,
             radiusMeters = settings?.radiusMeters ?: 1000,
             units = settings?.units ?: Geo.unitsFor(Locale.getDefault()),
             load = flags.load,
             stale = flags.stale,
-            category = choices.category,
-            openNow = choices.openNow && filtered.sameClock,
+            // The filters as applied to this list, so the chips, the toggle and the list always agree.
+            category = filtered.category,
+            openNow = filtered.openNow && filtered.sameClock,
             total = filtered.total,
             places = filtered.places,
             pins = filtered.pins,
-            selected = choices.selectedId?.let { id -> found.value.firstOrNull { it.place.id == id } },
+            selected = selectedId?.let { id -> found.value.firstOrNull { it.place.id == id } },
             saved = saved,
             now = filtered.now,
             sameClock = filtered.sameClock,
