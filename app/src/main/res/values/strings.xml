@@ -154,6 +154,7 @@
     </plurals>
     <string name="place_on_the_map">On the map</string>
     <string name="place_photo_credit">Photo · Wikimedia Commons</string>
+    <string name="place_photo_credit_by">Photo: %1$s · %2$s</string>
     <string name="place_osm_title">Something missing or wrong?</string>
     <string name="place_osm_body">These details come from OpenStreetMap, the map anyone can improve.</string>
     <string name="place_osm_link">Edit on OpenStreetMap</string>

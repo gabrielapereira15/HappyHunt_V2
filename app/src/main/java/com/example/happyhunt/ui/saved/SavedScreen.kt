@@ -29,6 +29,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -210,10 +211,17 @@ fun SavedScreen(viewModel: SavedViewModel, onOpenPlace: (String) -> Unit, onExpl
 @Composable
 private fun SavedCard(item: SavedItem, state: SavedState, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val dismiss = rememberSwipeToDismissBoxState()
+    // The list keeps each card's swipe state by place, so it is put back at once: otherwise a place
+    // brought back with Undo would come back swiped away, and be removed again.
+    LaunchedEffect(dismiss.currentValue) {
+        if (dismiss.currentValue == SwipeToDismissBoxValue.EndToStart) {
+            onRemove()
+            dismiss.snapTo(SwipeToDismissBoxValue.Settled)
+        }
+    }
     SwipeToDismissBox(
         state = dismiss,
         enableDismissFromStartToEnd = false,
-        onDismiss = { onRemove() },
         modifier = modifier,
         backgroundContent = {
             val color by animateColorAsState(

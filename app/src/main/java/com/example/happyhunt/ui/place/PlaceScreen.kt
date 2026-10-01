@@ -180,12 +180,19 @@ private fun Hero(place: Place, state: PlaceState, onCredit: () -> Unit) {
                     Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.45f), 0.35f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.25f)),
                 ),
             )
+            // The licences ask for the author and licence to be shown with the photo; the chip opens its page.
+            val author = photo.author
+            val license = photo.license
             Text(
-                stringResource(R.string.place_photo_credit),
+                if (author != null && license != null) stringResource(R.string.place_photo_credit_by, author, license)
+                else stringResource(R.string.place_photo_credit),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .padding(start = 16.dp)
                     .padding(end = 16.dp, bottom = 40.dp)
                     .clip(CircleShape)
                     .background(Color.Black.copy(alpha = 0.35f))

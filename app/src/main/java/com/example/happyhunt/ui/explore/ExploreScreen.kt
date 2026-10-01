@@ -62,6 +62,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
@@ -98,6 +99,9 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private val PEEK = 212.dp
+
+/** On a short screen (a phone on its side) the sheet peeks less, so the map keeps some room. */
+private val PEEK_SHORT = 120.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,11 +151,13 @@ fun ExploreScreen(
     val initialCamera = remember {
         viewModel.camera ?: CameraSpot(state.origin?.point ?: GeoPoint(43.6532, -79.3832), if (state.origin != null) 14.0 else 3.0)
     }
-    val mapBottom = PEEK + if (state.selected != null) 220.dp else 64.dp
+    val windowHeight = with(density) { LocalWindowInfo.current.containerSize.height.toDp() }
+    val peek = if (windowHeight < 560.dp) PEEK_SHORT else PEEK
+    val mapBottom = peek + if (state.selected != null) 220.dp else 64.dp
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetPeekHeight = PEEK,
+        sheetPeekHeight = peek,
         sheetContainerColor = Hunt.colors.surface,
         sheetShadowElevation = 16.dp,
         sheetContent = {
@@ -194,7 +200,7 @@ fun ExploreScreen(
                     .align(Alignment.TopCenter)
                     .onSizeChanged { topChrome = with(density) { it.height.toDp() } },
             )
-            AboveSheet(sheetState = sheetState, fallback = PEEK) {
+            AboveSheet(sheetState = sheetState, fallback = peek) {
                 AnimatedVisibility(
                     visible = state.selected != null,
                     enter = slideInVertically { it / 2 } + fadeIn(),

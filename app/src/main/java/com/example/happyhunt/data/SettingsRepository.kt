@@ -31,7 +31,7 @@ data class Settings(
     companion object {
         const val DEFAULT_RADIUS = 1000
 
-        /** Tested in downtown Toronto: 5 km is about 4,600 places and still answers in under 20 seconds. */
+        /** Tried in downtown Toronto: 5 km is about 5,000 places and can take half a minute to come back. */
         val RADII = listOf(500, 1000, 2000, 5000)
     }
 }

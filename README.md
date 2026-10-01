@@ -141,8 +141,8 @@ the centre of the search (the phone's position, or the area picked) to the
 open services listed under [Credits](#credits), with a User-Agent that names
 the app and nothing that identifies the person. Saved places, settings and the
 last search area stay on the phone. The search area is left out of Android
-backups. Location permission is asked for only when you tap "Use my location",
-and approximate location is enough.
+backups. Location permission is asked for only when you ask to use your
+location, and approximate location is enough.
 
 ## Tech stack
 
@@ -243,7 +243,7 @@ app/src/main/java/com/example/happyhunt/
 ./gradlew testDebugUnitTest
 ```
 
-49 unit tests cover:
+52 unit tests cover:
 
 - opening hours: open, closing soon, closed and when it opens next; hours past
   midnight, wrapping day ranges, days off and later rules, holiday rules, and
@@ -257,7 +257,8 @@ app/src/main/java/com/example/happyhunt/
   200
 - server fallback, caching across restarts, older answers when the servers are
   down, and telling "offline" from "busy", against a local test server
-- the Photon area search and reverse lookup
+- the Photon area search and reverse lookup, and finding a place's photo with
+  its author and licence
 - settings, and that the search area is kept apart from what is backed up
 
 ## Known gaps
@@ -266,9 +267,12 @@ app/src/main/java/com/example/happyhunt/
   most cities, but hours and details can be missing or out of date. Each place
   links to its OpenStreetMap page so anyone can fix it.
 - Public holidays are not taken into account; the place screen says so.
-- A 5 km search in a dense city finds several thousand places and can take 15
-  to 30 seconds, depending on how busy the Overpass servers are.
+- A 5 km search in a city finds thousands of places (5,300 around the Royal
+  Ontario Museum) and can take half a minute or more, depending on how busy
+  the Overpass servers are. The smaller areas are quicker.
 - Directions are handed to the phone's maps app; there is no routing in the app.
+- Laid out for a phone held upright. On its side everything still works, but
+  the map gets less room.
 - English only.
 
 ## Credits
@@ -282,7 +286,8 @@ Solutions postgraduate program, then rebuilt as a portfolio piece.
 - Places through the [Overpass API](https://overpass-api.de), area search by
   [Photon](https://photon.komoot.io) from komoot, photos from
   [Wikidata](https://www.wikidata.org) and
-  [Wikimedia Commons](https://commons.wikimedia.org), credited in the app
+  [Wikimedia Commons](https://commons.wikimedia.org), each credited to its
+  author and licence on the place screen
 - Typeface: Nunito, under the SIL Open Font License 1.1. Icons: Lucide, under
   the ISC License (both in `app/licenses/`)
 - The photo of the Royal Ontario Museum in the screenshots is

@@ -345,7 +345,8 @@ private fun addLayers(style: Style, colors: HuntColors) {
             circleColor(categoryColor),
             circleRadius(interpolate(linear(), zoom(), stop(10, 3f), stop(13, 4.5f), stop(PIN_ZOOM, 7f))),
             circleStrokeColor(color(android.graphics.Color.WHITE)),
-            circleStrokeWidth(interpolate(linear(), zoom(), stop(10, 1f), stop(PIN_ZOOM, 2f))),
+            // Thin outlines when zoomed out, or a busy street turns into a white smear.
+            circleStrokeWidth(interpolate(linear(), zoom(), stop(11, 0.5f), stop(13, 1f), stop(PIN_ZOOM, 2f))),
         ).apply { maxZoom = PIN_ZOOM },
     )
     style.addLayer(
